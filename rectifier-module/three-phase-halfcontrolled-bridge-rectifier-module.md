@@ -215,6 +215,45 @@ $$
 - 게이트 펄스 간격: 120°
 - 펄스 폭: 최소 10~20 μs (또는 연속 펄스 트레인 권장)
 
+### 7.2 Active-LOW 게이트 제어 (옵토커플러 반전 회로)
+
+임베디드 시스템에서 GPIO로 SCR 게이트를 직접 구동하지 않고,  
+**옵토커플러(optocoupler) 또는 게이트 드라이브 IC를 통해 절연**하는 경우,  
+회로 구성에 따라 신호 극성이 반전(invert)될 수 있다.
+
+#### 반전 회로 예시
+
+```
+  MCU GPIO ──→ Optocoupler ──→ Gate Drive ──→ SCR Gate
+                (inverting)
+  GPIO HIGH  →  LED OFF  →  Gate current = 0  →  SCR OFF
+  GPIO LOW   →  LED ON   →  Gate current > 0  →  SCR ON
+```
+
+#### 펌웨어에서의 논리 대응
+
+| GPIO 상태 | 물리 신호 | SCR 상태 |
+|-----------|-----------|----------|
+| `SET` (HIGH, 1) | Gate pulse 없음 | **OFF** (비도통) |
+| `CLEAR` (LOW, 0) | Gate pulse 인가 | **ON** (도통 시작) |
+
+> **주의**: Active-LOW 방식에서는 MCU 초기화(reset) 시 GPIO 기본값이 HIGH이면  
+> SCR은 안전하게 OFF 상태를 유지한다. 반대로 기본값이 LOW인 경우  
+> 부팅 순간 의도치 않게 SCR이 도통될 수 있으므로 **GPIO 초기 상태 설계에 주의**가 필요하다.
+
+#### 코드 작성 시 관례
+
+혼동을 방지하기 위해 추상화 매크로를 정의하는 것을 권장한다:
+
+```c
+/* Active-LOW gate drive: physical LOW = SCR ON */
+#define SCR_GATE_ON(port, pin)   GPIO_ResetBits(port, pin)  /* CLEAR */
+#define SCR_GATE_OFF(port, pin)  GPIO_SetBits(port, pin)    /* SET   */
+```
+
+이렇게 하면 코드 상에서 `SCR_GATE_ON` / `SCR_GATE_OFF` 만 보고  
+의도를 파악할 수 있어 유지보수성이 높아진다.
+
 ---
 
 ## 8. 주요 소자 정격 계산
