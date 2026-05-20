@@ -77,12 +77,12 @@ flowchart LR
 ### 3.4 게이트 펄스 타이밍 다이어그램
 
 ```
-  α = firing angle (0° ≤ α ≤ 150°), measured from NCP
+  α = firing angle (0° ≤ α ≤ 150°), measured from NCP (Natural Commutation Point)
 
   ←─────────────────────── one cycle (360°) ────────────────────────→
 
-              NCP_R              NCP_S              NCP_T
-                │                  │                  │
+              NCP_R               NCP_S               NCP_T
+                │                   │                   │
   θ:  0°  30°  60°  90° 120° 150° 180° 210° 240° 270° 300° 330° 360°
       │    │    │    │    │    │    │    │    │    │    │    │    │
 
